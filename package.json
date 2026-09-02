@@ -34,7 +34,8 @@
     "format:check": "prettier --check .",
     "test": "vitest run",
     "verify:package": "node scripts/verify-package.mjs",
-    "prepublishOnly": "pnpm build && pnpm verify:package"
+    "prepublishOnly": "pnpm build && pnpm verify:package",
+    "bench": "BENCH_TABLE=1 vitest run bench"
   },
   "peerDependencies": {
     "react": ">=18"
