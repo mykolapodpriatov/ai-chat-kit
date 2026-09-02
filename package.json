@@ -1,5 +1,5 @@
 {
-  "name": "ai-chat-kit",
+  "name": "@podpriatov/ai-chat-kit",
   "version": "1.0.0",
   "description": "Headless React hooks and components for streaming LLM chat UIs. Transport-agnostic core, streaming state outside React, abort and retry built in.",
   "keywords": [
@@ -91,5 +91,8 @@
   },
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
-  "types": "./dist/index.d.ts"
+  "types": "./dist/index.d.ts",
+  "publishConfig": {
+    "access": "public"
+  }
 }

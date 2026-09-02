@@ -116,15 +116,15 @@ try {
   const checks = [
     [
       'ESM default entry',
-      "import('ai-chat-kit').then((m) => { if (typeof m.createChatStore !== 'function') throw new Error('createChatStore missing'); })",
+      "import('@podpriatov/ai-chat-kit').then((m) => { if (typeof m.createChatStore !== 'function') throw new Error('createChatStore missing'); })",
     ],
     [
       'ESM headless subpath',
-      "import('ai-chat-kit/headless').then((m) => { if (typeof m.useChatStream !== 'function') throw new Error('useChatStream missing'); if ('Chat' in m) throw new Error('headless must not export components'); })",
+      "import('@podpriatov/ai-chat-kit/headless').then((m) => { if (typeof m.useChatStream !== 'function') throw new Error('useChatStream missing'); if ('Chat' in m) throw new Error('headless must not export components'); })",
     ],
     [
       'CJS default entry',
-      "const m = require('ai-chat-kit'); if (typeof m.createChatStore !== 'function') throw new Error('createChatStore missing from CJS');",
+      "const m = require('@podpriatov/ai-chat-kit'); if (typeof m.createChatStore !== 'function') throw new Error('createChatStore missing from CJS');",
     ],
   ];
 
@@ -144,8 +144,8 @@ try {
   writeFileSync(
     join(consumer, 'probe.ts'),
     [
-      "import { createChatStore, useChatStream, Chat } from 'ai-chat-kit';",
-      "import { createMockTransport } from 'ai-chat-kit/headless';",
+      "import { createChatStore, useChatStream, Chat } from '@podpriatov/ai-chat-kit';",
+      "import { createMockTransport } from '@podpriatov/ai-chat-kit/headless';",
       'const store = createChatStore();',
       'const first: string | undefined = store.getSnapshot().messages[0]?.content;',
       'export { store, first, useChatStream, Chat, createMockTransport };',
