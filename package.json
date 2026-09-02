@@ -1,0 +1,44 @@
+{
+  "name": "ai-chat-kit",
+  "version": "0.0.0",
+  "description": "Headless React hooks and components for streaming LLM chat UIs. Transport-agnostic core, streaming state outside React, abort and retry built in.",
+  "keywords": [
+    "react",
+    "llm",
+    "chat",
+    "streaming",
+    "sse",
+    "headless",
+    "hooks",
+    "openai",
+    "ai"
+  ],
+  "license": "MIT",
+  "author": "Mykola Podpriatov",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mykolapodpriatov/ai-chat-kit.git"
+  },
+  "homepage": "https://mykolapodpriatov.github.io/ai-chat-kit/",
+  "bugs": "https://github.com/mykolapodpriatov/ai-chat-kit/issues",
+  "type": "module",
+  "sideEffects": false,
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "vitest run"
+  },
+  "peerDependencies": {
+    "react": ">=18"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "packageManager": "pnpm@10.33.2"
+}
