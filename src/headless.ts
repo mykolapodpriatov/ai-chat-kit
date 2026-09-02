@@ -1,5 +1,11 @@
-// Public entry point for consumers bringing their own UI: everything except the
-// React components. Imported as `ai-chat-kit/headless`.
+// Public entry point for consumers bringing their own UI: the core, the
+// transports and the hooks — everything except the rendered components.
+// Imported as `ai-chat-kit/headless`.
+//
+// "Headless" here means the React bindings without any markup opinions, which
+// is the shape most teams with a design system actually want. The core and
+// transports underneath import no React at all, and ESLint enforces that, so a
+// non-React consumer can reach past this entry into them.
 
 export {
   ChatAbortError,
@@ -41,3 +47,10 @@ export {
   createOpenAICompatibleTransport,
   type OpenAICompatibleOptions,
 } from './transport/openai';
+
+export {
+  useChatStream,
+  type UseChatStreamOptions,
+  type UseChatStreamResult,
+} from './hooks/useChatStream';
+export { useChatMessage } from './hooks/useChatMessage';
