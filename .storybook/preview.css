@@ -1,3 +1,9 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 /* Demo styling only — the package itself ships no CSS.
    Components take className props and render semantic markup; how it looks is
    the consumer's business, and a library that injects styles is a library that
