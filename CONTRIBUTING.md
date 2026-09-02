@@ -29,7 +29,7 @@ pnpm lint
 - **Do not widen v1.** Tool-call rendering, an Anthropic adapter, virtualisation
   and streaming markdown are tracked as issues on purpose. New surface belongs
   in an issue first.
-- Commit messages explain *why*, not *what* — the diff already shows what.
+- Commit messages explain _why_, not _what_ — the diff already shows what.
 
 ## Before opening a PR
 
