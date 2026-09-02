@@ -31,3 +31,13 @@ export type {
   ChatStatus,
   StreamEvent,
 } from './core/types';
+export type { ChatTransport } from './transport/types';
+export {
+  createMockTransport,
+  type MockTransport,
+  type MockTransportOptions,
+} from './transport/mock';
+export {
+  createOpenAICompatibleTransport,
+  type OpenAICompatibleOptions,
+} from './transport/openai';
