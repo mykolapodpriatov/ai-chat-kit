@@ -1,5 +1,7 @@
 'use client';
 
+import type { ReactNode } from 'react';
+
 import type { ChatStore } from '../core/store';
 import type { ChatMessage } from '../core/types';
 import { MessageBubble } from './MessageBubble';
@@ -21,7 +23,7 @@ export interface MessageListProps {
   className?: string;
   messageClassName?: string;
   /** Rendered when the conversation is empty. */
-  empty?: React.ReactNode;
+  empty?: ReactNode;
 }
 
 export function MessageList({

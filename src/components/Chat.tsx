@@ -4,6 +4,8 @@ import {
   useChatStream,
   type UseChatStreamOptions,
 } from '../hooks/useChatStream';
+import type { ReactNode } from 'react';
+
 import { Composer } from './Composer';
 import { MessageList } from './MessageList';
 
@@ -17,12 +19,12 @@ import { MessageList } from './MessageList';
 export interface ChatProps extends UseChatStreamOptions {
   className?: string;
   placeholder?: string;
-  empty?: React.ReactNode;
+  empty?: ReactNode;
   /** Renders the failure; defaults to a plain alert with the message. */
-  renderError?: (error: unknown) => React.ReactNode;
+  renderError?: (error: unknown) => ReactNode;
 }
 
-function defaultRenderError(error: unknown): React.ReactNode {
+function defaultRenderError(error: unknown): ReactNode {
   const message =
     error instanceof Error ? error.message : 'Something went wrong.';
   return <div role="alert">{message}</div>;

@@ -13,7 +13,13 @@
 // than assumptions about it.
 
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import {
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -81,6 +87,91 @@ try {
       process.exit(1);
     }
   }
+
+  // Resolution is the thing that actually breaks for consumers, and it cannot
+  // be checked by reading package.json — install the tarball and import it.
+  const consumer = join(workdir, 'consumer');
+  mkdirSync(consumer);
+  writeFileSync(
+    join(consumer, 'package.json'),
+    JSON.stringify({ name: 'consumer', private: true, type: 'module' }),
+  );
+  // React and its types are peer dependencies, so a consumer always has them.
+  // Installing them here means the probe compiles against the same shape a real
+  // project does — without them the check would pass for the wrong reason.
+  execFileSync(
+    'npm',
+    [
+      'install',
+      '--no-audit',
+      '--no-fund',
+      tarball,
+      'react@19',
+      'react-dom@19',
+      '@types/react@19',
+    ],
+    { cwd: consumer, stdio: 'pipe' },
+  );
+
+  const checks = [
+    [
+      'ESM default entry',
+      "import('ai-chat-kit').then((m) => { if (typeof m.createChatStore !== 'function') throw new Error('createChatStore missing'); })",
+    ],
+    [
+      'ESM headless subpath',
+      "import('ai-chat-kit/headless').then((m) => { if (typeof m.useChatStream !== 'function') throw new Error('useChatStream missing'); if ('Chat' in m) throw new Error('headless must not export components'); })",
+    ],
+    [
+      'CJS default entry',
+      "const m = require('ai-chat-kit'); if (typeof m.createChatStore !== 'function') throw new Error('createChatStore missing from CJS');",
+    ],
+  ];
+
+  for (const [label, source] of checks) {
+    const isCjs = label.startsWith('CJS');
+    execFileSync(
+      'node',
+      ['--input-type', isCjs ? 'commonjs' : 'module', '-e', source],
+      { cwd: consumer, stdio: 'pipe' },
+    );
+    console.log(`✓ ${label} resolves`);
+  }
+
+  // Types are the third thing that breaks, and the `exports` check above only
+  // proves the key order — not that the declarations actually compile against a
+  // consumer's own settings. So compile a real file.
+  writeFileSync(
+    join(consumer, 'probe.ts'),
+    [
+      "import { createChatStore, useChatStream, Chat } from 'ai-chat-kit';",
+      "import { createMockTransport } from 'ai-chat-kit/headless';",
+      'const store = createChatStore();',
+      'const first: string | undefined = store.getSnapshot().messages[0]?.content;',
+      'export { store, first, useChatStream, Chat, createMockTransport };',
+    ].join('\n'),
+  );
+  execFileSync(
+    process.execPath,
+    [
+      join(process.cwd(), 'node_modules', 'typescript', 'lib', 'tsc.js'),
+      '--noEmit',
+      '--strict',
+      '--module',
+      'esnext',
+      '--moduleResolution',
+      'bundler',
+      '--jsx',
+      'react-jsx',
+      '--target',
+      'es2022',
+      '--lib',
+      'es2022,dom',
+      'probe.ts',
+    ],
+    { cwd: consumer, stdio: 'inherit' },
+  );
+  console.log('✓ TypeScript declarations resolve and compile');
 
   console.log(`✓ tarball contains ${listing.length} files, all expected`);
 } finally {
