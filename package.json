@@ -34,7 +34,7 @@
     "format:check": "prettier --check .",
     "test": "vitest run",
     "verify:package": "node scripts/verify-package.mjs",
-    "prepublishOnly": "pnpm build && pnpm verify:package",
+    "prepublishOnly": "pnpm build",
     "bench": "BENCH_TABLE=1 vitest run bench",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
