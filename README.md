@@ -5,7 +5,7 @@ decision: **the streaming state lives outside React**, so a token re-renders one
 message instead of the whole transcript.
 
 [![CI](https://github.com/mykolapodpriatov/ai-chat-kit/actions/workflows/ci.yml/badge.svg)](https://github.com/mykolapodpriatov/ai-chat-kit/actions/workflows/ci.yml)
-[![npm](https://img.shields.io/npm/v/ai-chat-kit.svg)](https://www.npmjs.com/package/ai-chat-kit)
+[![npm](https://img.shields.io/npm/v/@podpriatov/ai-chat-kit.svg)](https://www.npmjs.com/package/@podpriatov/ai-chat-kit)
 [![Demo](https://github.com/mykolapodpriatov/ai-chat-kit/actions/workflows/deploy-pages.yml/badge.svg)](https://mykolapodpriatov.github.io/ai-chat-kit/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
@@ -17,11 +17,14 @@ a live demo cannot produce on demand: a stream slow enough to interrupt, a 502
 after six tokens, a 429 carrying `Retry-After`.
 
 ```bash
-npm install ai-chat-kit react
+npm install @podpriatov/ai-chat-kit react
 ```
 
+> The package is scoped because npm rejects the unscoped `ai-chat-kit` as too
+> similar to an existing `aichatkit`. The repository keeps the plain name.
+
 ```tsx
-import { Chat, createOpenAICompatibleTransport } from 'ai-chat-kit';
+import { Chat, createOpenAICompatibleTransport } from '@podpriatov/ai-chat-kit';
 
 // In a real app this points at your own backend route, not the provider —
 // see "Where the key goes" below.
@@ -191,7 +194,10 @@ have.
 ### Headless: bring your own UI
 
 ```tsx
-import { useChatStream, createMockTransport } from 'ai-chat-kit/headless';
+import {
+  useChatStream,
+  createMockTransport,
+} from '@podpriatov/ai-chat-kit/headless';
 
 const transport = createMockTransport({ script: 'Hello there.' });
 
@@ -204,7 +210,7 @@ function Chat() {
 }
 ```
 
-`ai-chat-kit/headless` carries the core, the transports and the hooks — the
+`@podpriatov/ai-chat-kit/headless` carries the core, the transports and the hooks — the
 components are only in the main entry.
 
 ### Per-message subscription
@@ -238,7 +244,7 @@ a key in every browser.
 ### Errors
 
 ```ts
-import { RateLimitError, isRetryable } from 'ai-chat-kit/headless';
+import { RateLimitError, isRetryable } from '@podpriatov/ai-chat-kit/headless';
 
 if (error instanceof RateLimitError) {
   // error.retryAfterMs — what the provider actually asked for
