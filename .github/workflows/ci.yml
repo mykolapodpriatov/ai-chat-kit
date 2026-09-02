@@ -47,8 +47,13 @@ jobs:
           node-version: 24
           cache: 'pnpm'
       - run: pnpm install --frozen-lockfile
-      - name: Unit + component tests (Vitest, incl. axe)
+      - name: Unit + component tests (Vitest, incl. axe and the benchmark)
         run: pnpm test
+      # Printed, not asserted on timing: the render counts are already asserted
+      # inside the suite, and a shared runner's milliseconds are noise. Having
+      # the table in the log makes a regression visible in the PR itself.
+      - name: Benchmark table
+        run: pnpm bench
 
   build:
     name: Build
