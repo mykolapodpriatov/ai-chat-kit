@@ -6,7 +6,7 @@
 // structural rather than a mistake — every delta invalidates the state that
 // owns the whole list, so React re-renders every row.
 
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import type { ChatMessage } from '../src/core/types';
 
@@ -39,11 +39,13 @@ export function NaiveChat({ initial, onRender, register }: NaiveChatProps) {
     );
   }, []);
 
-  const registered = useRef(false);
-  if (!registered.current) {
-    registered.current = true;
+  // Registered in an effect rather than during render: touching a ref while
+  // rendering is exactly the kind of thing React's lint rules exist to catch,
+  // and effects have flushed by the time render() returns in Testing Library,
+  // so the benchmark still has `append` when it needs it.
+  useEffect(() => {
     register(append);
-  }
+  }, [register, append]);
 
   return (
     <ul>

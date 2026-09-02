@@ -58,7 +58,9 @@ function measureNaive(scenario: Scenario): Measurement {
   let rowRenders = 0;
   let append!: (id: string, text: string) => void;
   const initial = seedMessages(scenario.messages);
-  const targetId = initial.at(-1)!.id;
+  const target = initial.at(-1);
+  if (!target) throw new Error('A scenario needs at least one message.');
+  const targetId = target.id;
 
   render(
     <NaiveChat
@@ -93,7 +95,10 @@ function measureSubscribed(scenario: Scenario): Measurement {
   const ids = Array.from({ length: scenario.messages }, (_, index) =>
     store.appendMessage({ role: 'assistant', content: `Message ${index}` }),
   );
-  const targetId = ids.at(-1)!;
+  const targetId = ids.at(-1);
+  if (targetId === undefined) {
+    throw new Error('A scenario needs at least one message.');
+  }
 
   render(
     <SubscribedChat
