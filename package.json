@@ -1,6 +1,6 @@
 {
   "name": "@podpriatov/ai-chat-kit",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Headless React hooks and components for streaming LLM chat UIs. Transport-agnostic core, streaming state outside React, abort and retry built in.",
   "keywords": [
     "react",
