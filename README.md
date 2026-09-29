@@ -55,12 +55,12 @@ This library moves the conversation into a store that components subscribe to
 ## Architecture
 
 ```
-                    ┌──────────────────────────────┐
-                    │  ChatTransport               │
-                    │  openai-compatible │ mock    │
-                    └──────────────┬───────────────┘
-                                   │ ReadableStream<StreamEvent>
-                                   ▼
+                    ┌────────────────────────────────────────┐
+                    │  ChatTransport                         │
+                    │  openai-compatible │ anthropic │ mock  │
+                    └────────────────────┬───────────────────┘
+                                         │ ReadableStream<StreamEvent>
+                                         ▼
    ReadableStream ──▶ SSE parser ──▶ ChatStore ──▶ useSyncExternalStore
                                         │
                      ┌──────────────────┼──────────────────┐
@@ -148,7 +148,7 @@ The shape is the point: naive cost is `deltas × messages`, this is `deltas`.
 
 ## Testing
 
-125 tests across three layers. `pnpm test`.
+137 tests across three layers. `pnpm test`.
 
 | Layer         | Covers                                                                         |
 | ------------- | ------------------------------------------------------------------------------ |
@@ -241,6 +241,25 @@ Passing `apiKey` straight to a provider is supported because it is the right
 thing for a local model or a trusted-network tool — but a key in the browser is
 a key in every browser.
 
+### Anthropic directly
+
+`createOpenAICompatibleTransport` reaches Anthropic through its OpenAI-compatible
+endpoint too, but that endpoint does not expose extended thinking or prompt
+caching. `createAnthropicTransport` speaks the Messages API's own streaming
+format instead, behind the same `ChatTransport` interface:
+
+```ts
+import { createAnthropicTransport } from '@podpriatov/ai-chat-kit/headless';
+
+const transport = createAnthropicTransport({
+  baseUrl: '/api/llm', // your backend proxies to Anthropic
+  model: 'claude-sonnet-4-5',
+});
+```
+
+A system message in `initialMessages` is sent as Anthropic's top-level `system`
+field rather than as a message, since the Messages API has no `system` role.
+
 ### Errors
 
 ```ts
@@ -259,7 +278,7 @@ a duplicate copy of the package ends up in the dependency tree.
 
 ```bash
 pnpm install
-pnpm test            # 125 tests
+pnpm test            # 137 tests
 pnpm bench           # the performance table above
 pnpm storybook       # the demo at localhost:6006
 pnpm build           # ESM + CJS + declarations
@@ -279,7 +298,6 @@ Deferred from v1 on purpose, with reasons in
 [ADR 003](docs/decisions/003-v1-boundaries.md):
 
 - tool-call rendering
-- an Anthropic-native adapter
 - message virtualisation
 - streaming markdown with syntax highlighting
 

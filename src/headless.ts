@@ -47,6 +47,10 @@ export {
   createOpenAICompatibleTransport,
   type OpenAICompatibleOptions,
 } from './transport/openai';
+export {
+  createAnthropicTransport,
+  type AnthropicTransportOptions,
+} from './transport/anthropic';
 
 export {
   useChatStream,

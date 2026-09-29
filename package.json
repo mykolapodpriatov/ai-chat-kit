@@ -11,6 +11,7 @@
     "headless",
     "hooks",
     "openai",
+    "anthropic",
     "ai"
   ],
   "license": "MIT",
