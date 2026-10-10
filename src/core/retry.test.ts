@@ -110,6 +110,18 @@ describe('withRetry', () => {
     expect(sleep).toHaveBeenCalledWith(7_500);
   });
 
+  it('does not sleep through a Retry-After that would freeze the chat', async () => {
+    const sleep = vi.fn().mockResolvedValue(undefined);
+    const error = new RateLimitError('slow down', { retryAfterMs: 86_400_000 });
+    const attempt = vi.fn().mockRejectedValue(error);
+
+    await expect(withRetry(attempt, { maxAttempts: 4, sleep })).rejects.toBe(
+      error,
+    );
+    expect(sleep).not.toHaveBeenCalled();
+    expect(attempt).toHaveBeenCalledTimes(1);
+  });
+
   it('falls back to backoff when a rate limit carries no Retry-After', async () => {
     const sleep = vi.fn().mockResolvedValue(undefined);
     const attempt = vi

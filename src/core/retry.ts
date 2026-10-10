@@ -27,6 +27,16 @@ export const DEFAULT_BACKOFF: BackoffOptions = {
 };
 
 /**
+ * Longest `Retry-After` the client will sit through.
+ *
+ * A proxy that sends `Retry-After: 86400` would freeze the composer for a
+ * day. Retrying sooner than the provider asked is how an account gets
+ * limited harder, so a wait above this ceiling is not slept: the rate-limit
+ * error is surfaced and the caller decides what to show.
+ */
+export const MAX_HONOURED_RETRY_AFTER_MS = 120_000;
+
+/**
  * Delay before attempt number `attempt` (0-based), exponential and jittered.
  *
  * The jitter is subtractive — the delay lands in
@@ -92,6 +102,12 @@ export async function withRetry<T>(
 
       const retryAfter =
         error instanceof RateLimitError ? error.retryAfterMs : undefined;
+      if (
+        retryAfter !== undefined &&
+        retryAfter > MAX_HONOURED_RETRY_AFTER_MS
+      ) {
+        throw error;
+      }
       await sleep(retryAfter ?? backoffDelay(attemptNumber, backoff));
     }
   }
