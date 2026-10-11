@@ -64,6 +64,8 @@ export function useChatStream(
   const store = storeRef.current;
 
   const abortRef = useRef<AbortController | null>(null);
+  // Bumped on every send. A request that lost the race must not write status.
+  const attemptRef = useRef(0);
 
   // Callbacks live in a ref so a consumer passing inline arrows does not
   // invalidate `send` on every render — which would restart effects downstream.
@@ -87,7 +89,9 @@ export function useChatStream(
       if (trimmed.length === 0) return;
 
       // A second send while one is in flight replaces it rather than
-      // interleaving two streams into the same transcript.
+      // interleaving two streams into the same transcript. The number moves
+      // first, so the request we just aborted can see that it lost.
+      const attempt = ++attemptRef.current;
       stop();
 
       const controller = new AbortController();
@@ -100,6 +104,7 @@ export function useChatStream(
       controller.signal.addEventListener(
         'abort',
         () => {
+          if (attemptRef.current !== attempt) return;
           store.fail(new ChatAbortError());
         },
         { once: true },
@@ -126,11 +131,13 @@ export function useChatStream(
         const stream = await callbacks.current.transport.send(request, {
           signal: controller.signal,
         });
+        if (attemptRef.current !== attempt) return;
         store.startStreaming(assistantId);
 
         const reader = stream.getReader();
         for (;;) {
           const { done, value } = await reader.read();
+          if (attemptRef.current !== attempt) return;
           if (done) break;
 
           if (value.type === 'delta') {
@@ -147,6 +154,7 @@ export function useChatStream(
           }
         }
       } catch (error) {
+        if (attemptRef.current !== attempt) return;
         const normalised = controller.signal.aborted
           ? new ChatAbortError()
           : error;
