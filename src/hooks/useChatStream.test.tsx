@@ -218,6 +218,44 @@ describe('useChatStream', () => {
     expect(abortSpy).toHaveBeenCalledTimes(1);
   });
 
+  it('stays submitted when a replaced request rejects late', async () => {
+    let calls = 0;
+    const transport: ChatTransport = {
+      send: (_request, { signal }) => {
+        calls += 1;
+        if (calls === 1) {
+          return new Promise<ReadableStream<never>>((_resolve, reject) => {
+            signal.addEventListener('abort', () => {
+              reject(
+                Object.assign(new Error('aborted'), { name: 'AbortError' }),
+              );
+            });
+          });
+        }
+        return new Promise<ReadableStream<never>>(() => {
+          /* the replacement is still waiting on the transport */
+        });
+      },
+    };
+    const { result } = renderHook(() => useChatStream({ transport }));
+
+    act(() => {
+      void result.current.send('one');
+    });
+    await waitFor(() => expect(result.current.messages).toHaveLength(2));
+
+    act(() => {
+      void result.current.send('two');
+    });
+    await waitFor(() => expect(result.current.messages).toHaveLength(4));
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(result.current.status).toBe('submitted');
+    expect(result.current.messages[3]?.streaming).toBe(false);
+  });
+
   it('replaces an in-flight request rather than interleaving two streams', async () => {
     const transport = createMockTransport({
       script: [['aaa'], ['bbb']],
